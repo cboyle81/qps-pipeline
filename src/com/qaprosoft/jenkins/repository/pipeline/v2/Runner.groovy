@@ -47,7 +47,7 @@ class Runner extends Executor {
 			def jenkinsFile = ".jenkinsfile.json"
 
 			if (!context.fileExists("${jenkinsFile}")) {
-				context.println("no .jenkinsfile.json discovered! Scannr will use default qps-pipeline logic for project: ${project}")
+				context.println("no .jenkinsfile.json discovered! Scanner will use default qps-pipeline logic for project: ${project}")
 			}
 
 			def suiteFilter = "src/test/resources/**"
@@ -698,7 +698,14 @@ clean test"
 		
 		def supportedBrowsers = currentSuite.getParameter("jenkinsPipelineBrowsers").toString()
 		String logLine = "pipelineJobName: ${pipelineJobName};\n	supportedPipelines: ${supportedPipelines};\n	jobName: ${jobName};\n	orderNum: ${orderNum};\n	email_list: ${emailList};\n	supportedEnvs: ${supportedEnvs};\n	currentEnv: ${currentEnv};\n	supportedBrowsers: ${supportedBrowsers};\n"
-		
+
+		//TODO: Where we want to add in the browserstack items...
+		def useExternalBrowser = currentSuite.getParameter("useExternalBrowser").toString()
+		def operatingSystems = currentSuite.getParameter("jenkinsPipelineOS").toString()
+		//def overrideFields = currentSuite.getParameter("overrideFields").toString()
+
+		/**parameterMap.put("overrideFields", getInfo(retrieveRawValues(file, "overrideFields")))**/
+
 		def currentBrowser = Configurator.get("browser")
 		if (currentBrowser == null || currentBrowser.isEmpty()) {
 			currentBrowser = "NULL"
@@ -766,7 +773,13 @@ clean test"
 
 						//context.println("initialized ${filePath} suite to pipeline run...")
 						//context.println("pipelines size1: " + listPipelines.size())
-						listPipelines.add(pipelineMap)
+						//TODO: [CB] Need to make tweaks around here...
+						//listPipelines.add(pipelineMap)
+						if (parameterMap.get("useExternalBrowser").contains("null")) {
+							listPipelines.add(getMappingTemplate(parameterMap))
+						} else {
+							generateOperatingSystemPipeline(pipelineMap, listPipelines)
+						}
 						//context.println("pipelines size2: " + listPipelines.size())
 					}
 
@@ -788,6 +801,7 @@ clean test"
 		String beginOrder = "0"
 		String curOrder = ""
 		for (Map entry : listPipelines) {
+			//TODO:  Looks like we are doing the stageName's here have to figure out what we need to do to get Browserstack here....
 			def stageName = String.format("Stage: %s Environment: %s Browser: %s", entry.get("jobName"), entry.get("environment"), entry.get("browser"))
 			context.println("stageName: ${stageName}")
 			
@@ -866,5 +880,66 @@ clean test"
 			}
 
 		}
+	}
+
+	def scanThroughEnvironments(Map parameterMap, String filePath, List listPipelines) {
+		if (!parameterMap.get("envInfo").contains("null")) {
+			for (def envName : getInfo(parameterMap.get("envInfo")).split(",")) {
+				parameterMap.put("envName", envName)
+				scanThroughBrowsers(parameterMap, filePath, listPipelines)
+			}
+		}
+	}
+
+	def scanThroughBrowsers(Map parameterMap, String filePath, List listPipelines) {
+		for (def browser : getInfo(parameterMap.get("browsers")).split(",")) {
+			reviewAddPipelineList(parameterMap, filePath, browser, listPipelines)
+		}
+	}
+
+	def reviewAddPipelineList(Map parameterMap, String filePath, String browser, List listPipelines) {
+		if (filePath.contains("web") && parameterMap.get("browsers").contains("null")) {
+			browser = "chrome"
+		}
+		if ("${JOB_BASE_NAME}".equalsIgnoreCase(parameterMap.get("pipeName"))) {
+			echo "Pipeline job: " + parameterMap.get("pipeName")
+			parameterMap.put("browser", browser)
+
+			if (parameterMap.get("useExternalBrowser").contains("null")) {
+				listPipelines.add(getMappingTemplate(parameterMap))
+			} else {
+				generateOperatingSystemPipeline(parameterMap, listPipelines)
+			}
+		}
+	}
+
+	def generateOperatingSystemPipeline(Map parameterMap, List listPipelines) {
+		def browserInfo = readYaml file: "mlb-qa/src/main/resources/pipeline/browsers.yaml"
+
+		for (def operatingSystem : getInfo(parameterMap.get("operatingSystems")).split(",")) {
+			for (Map entry : browserInfo.get("browsers")) {
+				if (entry.get("browser").toString().equalsIgnoreCase(parameterMap.get("browser"))
+						&& entry.get("os").toString().toUpperCase().contains(operatingSystem.toUpperCase())) {
+					listPipelines.add(addOsEntryToList(getMappingTemplate(parameterMap), operatingSystem, parameterMap.get("browser")))
+					break;
+				}
+			}
+		}
+	}
+
+	def addOsEntryToList(Map pipelineTemplate, String operatingSystem, String browser) {
+		def pipelineMap = pipelineTemplate
+		def currentOs = operatingSystem
+
+		println "Let's Check the Override Fields: " + pipelineTemplate.get("overrideFields")
+
+		pipelineMap.put("custom_capabilities", "browserstack/browserstack_template.properties")
+		pipelineMap.put("overrideFields", buildOverrideParameters(pipelineTemplate.get("overrideFields").toString(), addCustomCapabilityForBrowser(currentOs, browser)))
+		pipelineMap.put("operatingSystem", currentOs)
+
+		println "Current Browser: " + browser + " Current OS: " + operatingSystem
+		println "Adding to Map: " + pipelineMap
+
+		return pipelineMap
 	}
 }
