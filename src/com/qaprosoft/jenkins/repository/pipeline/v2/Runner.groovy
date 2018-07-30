@@ -775,8 +775,8 @@ clean test"
 						//context.println("pipelines size1: " + listPipelines.size())
 						//TODO: [CB] Need to make tweaks around here...
 						//listPipelines.add(pipelineMap)
-						if (parameterMap.get("useExternalBrowser").contains("null")) {
-							listPipelines.add(getMappingTemplate(parameterMap))
+						if (useExternalBrowser.contains("null")) {
+							listPipelines.add(pipelineMap)
 						} else {
 							generateOperatingSystemPipeline(pipelineMap, listPipelines)
 						}
