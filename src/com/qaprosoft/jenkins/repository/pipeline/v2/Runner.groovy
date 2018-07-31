@@ -937,14 +937,14 @@ clean test"
 		def pipelineMap = pipelineTemplate
 		def currentOs = operatingSystem
 
-		println "Let's Check the Override Fields: " + pipelineTemplate.get("overrideFields")
+		context.println "Let's Check the Override Fields: " + pipelineTemplate.get("overrideFields")
 
 		pipelineMap.put("custom_capabilities", "browserstack/browserstack_template.properties")
 		pipelineMap.put("overrideFields", buildOverrideParameters(pipelineTemplate.get("overrideFields").toString(), addCustomCapabilityForBrowser(currentOs, browser)))
 		pipelineMap.put("operatingSystem", currentOs)
 
-		println "Current Browser: " + browser + " Current OS: " + operatingSystem
-		println "Adding to Map: " + pipelineMap
+		context.println "Current Browser: " + browser + " Current OS: " + operatingSystem
+		context.println "Adding to Map: " + pipelineMap
 
 		return pipelineMap
 	}
