@@ -986,4 +986,16 @@ clean test"
 
 		return goals
 	}
+
+	def getGenericSplit(String stringToSplit) {
+		def genericList = ""
+		if (!isParamEmpty(stringToSplit)) {
+			if (!stringToSplit.contains(", ")) {
+				genericList = stringToSplit.split(",")
+			} else {
+				genericList = stringToSplit.split(", ")
+			}
+		}
+		return genericList
+	}
 }
