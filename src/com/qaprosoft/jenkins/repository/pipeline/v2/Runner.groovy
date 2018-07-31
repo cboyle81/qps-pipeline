@@ -804,6 +804,10 @@ clean test"
 		for (Map entry : listPipelines) {
 			//TODO:  Looks like we are doing the stageName's here have to figure out what we need to do to get Browserstack here....
 			def stageName = String.format("Stage: %s Environment: %s Browser: %s", entry.get("jobName"), entry.get("environment"), entry.get("browser"))
+			if (entry.get("operatingSystem") != null) {
+				stageName = stageName + " OS: " + entry.get("operatingSystem")
+			}
+
 			context.println("stageName: ${stageName}")
 			
 			boolean propagateJob = true
