@@ -944,4 +944,46 @@ clean test"
 
 		return pipelineMap
 	}
+
+	def addCustomCapabilityForBrowser(String passedOs, String browser) {
+
+		def browserCapabilities = [:]
+
+		if (passedOs.toLowerCase().contains("win")) {
+			browserCapabilities.put("capabilities.os", "Windows")
+		} else {
+			browserCapabilities.put("capabilities.os", "OS X")
+		}
+
+		browserCapabilities.put("capabilities.os_version", passedOs.replace("WIN", ""))
+		browserCapabilities.put("capabilities.browser", browser)
+
+		if (browser.equalsIgnoreCase("safari") || browser.equalsIgnoreCase("ie") || browser.equalsIgnoreCase("edge")) {
+			browserCapabilities.put("capabilities.browserstack." +  browser.toLowerCase() +".enablePopups", "true")
+		}
+
+		return browserCapabilities
+	}
+
+	def buildOverrideParameter(String originalOverride) {
+		def goals = ""
+
+		if (!isParamEmpty(originalOverride)) {
+			for (String overrideField : getGenericSplit(originalOverride)) {
+				goals = goals + " -D" + overrideField
+			}
+		}
+
+		return goals
+	}
+
+	def buildOverrideParameters(String originalOverride, Map<String, String> goalMap) {
+		def goals = ""
+
+		goals = buildOverrideParameter(originalOverride)
+
+		goalMap.each { k, v -> goals = goals + " -D${k}=\"${v}\""}
+
+		return goals
+	}
 }
