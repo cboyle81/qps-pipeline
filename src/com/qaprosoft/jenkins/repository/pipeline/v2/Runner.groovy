@@ -925,7 +925,7 @@ clean test"
 			for (Map entry : browserInfo.get("browsers")) {
 				if (entry.get("browser").toString().equalsIgnoreCase(parameterMap.get("browser"))
 						&& entry.get("os").toString().toUpperCase().contains(operatingSystem.toUpperCase())) {
-					//TODO: Need to getMappingTemplate
+					context.println "OS Being Added... " + operatingSystem
 					listPipelines.add(addOsEntryToList(parameterMap, operatingSystem, parameterMap.get("browser")))
 					break;
 				}
