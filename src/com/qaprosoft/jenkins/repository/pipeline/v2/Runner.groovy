@@ -914,7 +914,7 @@ clean test"
 	}
 
 	def generateOperatingSystemPipeline(Map parameterMap, List listPipelines) {
-		def browserInfo = readYaml file: "mlb-qa/src/main/resources/pipeline/browsers.yaml"
+		def browserInfo = context.readYaml file: "mlb-qa/src/main/resources/pipeline/browsers.yaml"
 
 		for (def operatingSystem : getInfo(parameterMap.get("operatingSystems")).split(",")) {
 			for (Map entry : browserInfo.get("browsers")) {
