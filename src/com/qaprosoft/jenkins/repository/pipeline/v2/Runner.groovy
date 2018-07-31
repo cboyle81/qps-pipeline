@@ -770,6 +770,7 @@ clean test"
 						pipelineMap.put("priority", priorityNum)
 						pipelineMap.put("emailList", emailList.replace(", ", ","))
 						pipelineMap.put("executionMode", executionMode.replace(", ", ","))
+						pipelineMap.put("operatingSystems", operatingSystems)
 
 						//context.println("initialized ${filePath} suite to pipeline run...")
 						//context.println("pipelines size1: " + listPipelines.size())
@@ -916,11 +917,12 @@ clean test"
 	def generateOperatingSystemPipeline(Map parameterMap, List listPipelines) {
 		def browserInfo = context.readYaml file: "mlb-qa/src/main/resources/pipeline/browsers.yaml"
 
-		for (def operatingSystem : getInfo(parameterMap.get("operatingSystems")).split(",")) {
+		for (def operatingSystem : parameterMap.get("operatingSystems").split(",")) {
 			for (Map entry : browserInfo.get("browsers")) {
 				if (entry.get("browser").toString().equalsIgnoreCase(parameterMap.get("browser"))
 						&& entry.get("os").toString().toUpperCase().contains(operatingSystem.toUpperCase())) {
-					listPipelines.add(addOsEntryToList(getMappingTemplate(parameterMap), operatingSystem, parameterMap.get("browser")))
+					//TODO: Need to getMappingTemplate
+					listPipelines.add(addOsEntryToList(parameterMap, operatingSystem, parameterMap.get("browser")))
 					break;
 				}
 			}
