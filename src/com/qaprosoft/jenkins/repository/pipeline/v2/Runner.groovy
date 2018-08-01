@@ -922,6 +922,7 @@ clean test"
 
 		for (def operatingSystem : parameterMap.get("operatingSystems").split(",")) {
 			def originalMap = parameterMap
+			originalMap.put("overrideFields", "")
 			for (Map entry : browserInfo.get("browsers")) {
 				if (entry.get("browser").toString().equalsIgnoreCase(originalMap.get("browser"))
 						&& entry.get("os").toString().toUpperCase().contains(operatingSystem.toUpperCase())) {
