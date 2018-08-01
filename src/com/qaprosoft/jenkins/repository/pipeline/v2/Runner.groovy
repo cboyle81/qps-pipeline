@@ -775,7 +775,6 @@ clean test"
 						//context.println("initialized ${filePath} suite to pipeline run...")
 						//context.println("pipelines size1: " + listPipelines.size())
 						//TODO: [CB] Need to make tweaks around here...
-						//listPipelines.add(pipelineMap)
 						if (useExternalBrowser.contains("null")) {
 							listPipelines.add(pipelineMap)
 						} else {
@@ -922,11 +921,11 @@ clean test"
 		def browserInfo = context.readYaml file: "mlb-qa/src/main/resources/pipeline/browsers.yaml"
 
 		for (def operatingSystem : parameterMap.get("operatingSystems").split(",")) {
+			def originalMap = parameterMap
 			for (Map entry : browserInfo.get("browsers")) {
-				if (entry.get("browser").toString().equalsIgnoreCase(parameterMap.get("browser"))
+				if (entry.get("browser").toString().equalsIgnoreCase(originalMap.get("browser"))
 						&& entry.get("os").toString().toUpperCase().contains(operatingSystem.toUpperCase())) {
-					context.println "OS Being Added... " + operatingSystem
-					listPipelines.add(addOsEntryToList(parameterMap, operatingSystem, parameterMap.get("browser")))
+					listPipelines.add(addOsEntryToList(originalMap, operatingSystem, originalMap.get("browser")))
 					break;
 				}
 			}
@@ -940,6 +939,7 @@ clean test"
 		context.println "Let's Check the Override Fields: " + pipelineTemplate.get("overrideFields")
 
 		pipelineMap.put("custom_capabilities", "browserstack/browserstack_template.properties")
+		//TODO:  Need to setup a mapping template prior to each as it was linking onto each other...
 		pipelineMap.put("overrideFields", buildOverrideParameters(pipelineTemplate.get("overrideFields").toString(), addCustomCapabilityForBrowser(currentOs, browser)))
 		pipelineMap.put("operatingSystem", currentOs)
 
