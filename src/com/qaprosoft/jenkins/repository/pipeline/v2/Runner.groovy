@@ -770,7 +770,6 @@ clean test"
 						pipelineMap.put("priority", priorityNum)
 						pipelineMap.put("emailList", emailList.replace(", ", ","))
 						pipelineMap.put("executionMode", executionMode.replace(", ", ","))
-						pipelineMap.put("operatingSystems", operatingSystems)
 
 						//context.println("initialized ${filePath} suite to pipeline run...")
 						//context.println("pipelines size1: " + listPipelines.size())
@@ -778,6 +777,7 @@ clean test"
 						if (useExternalBrowser.contains("null")) {
 							listPipelines.add(pipelineMap)
 						} else {
+							pipelineMap.put("operatingSystems", operatingSystems)
 							generateOperatingSystemPipeline(pipelineMap, listPipelines)
 						}
 						//context.println("pipelines size2: " + listPipelines.size())
@@ -919,8 +919,10 @@ clean test"
 
 	def generateOperatingSystemPipeline(Map parameterMap, List listPipelines) {
 		def browserInfo = context.readYaml file: "mlb-qa/src/main/resources/pipeline/browsers.yaml"
+		def listOfOperatingSystems = parameterMap.get("operatingSystems")
+		parameterMap.remove("operatingSystems");
 
-		for (def operatingSystem : parameterMap.get("operatingSystems").split(",")) {
+		for (def operatingSystem : listOfOperatingSystems.split(",")) {
 			def originalMap = parameterMap
 			originalMap.put("overrideFields", "")
 			for (Map entry : browserInfo.get("browsers")) {
