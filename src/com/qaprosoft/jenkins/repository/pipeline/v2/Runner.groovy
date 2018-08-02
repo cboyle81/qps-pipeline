@@ -104,6 +104,7 @@ class Runner extends Executor {
 			nodeName = chooseNode()
 		}
 
+		//TODO: BrowserStack Integration needs to be done
 		context.node(nodeName) {
 			context.wrap([$class: 'BuildUser']) {
 				try {
@@ -389,6 +390,23 @@ clean test"
 			if (Configurator.get("deploy_to_local_repo") && Configurator.get("deploy_to_local_repo").toBoolean()) {
 				context.echo "Enabling deployment of tests jar to local repo."
 				goals += " install"
+			}
+
+			//TODO:  Adding in Browserstack support...
+			if (!isParamEmpty(Configurator.get("custom_capabilities"))) {
+
+				if (Configurator.get("custom_capabilities").toLowerCase().contains("browserstack")) {
+					def uniqueBrowserInstance = "\"#${BUILD_NUMBER}-" + Configurator.get("suite") + "-"
+						+ Configurator.get("browser") + "-" + Configurator.get("env") + "\""
+								.replace("/", "-")
+								.replace("#", "")
+
+					useBrowserStack(uniqueBrowserInstance)
+					goals += " -Dcapabilities.project=" + Configurator.get("project")
+					goals += " -Dcapabilities.build=" + uniqueBrowserInstance
+					goals += " -Dcapabilities.browserstack.localIdentifier=" + uniqueBrowserInstance
+					goals += " -Dapp_version=browserStack"
+				}
 			}
 			
 			//append again overrideFields to make sure they are declared at the end
@@ -698,7 +716,7 @@ clean test"
 		def supportedBrowsers = currentSuite.getParameter("jenkinsPipelineBrowsers").toString()
 		String logLine = "pipelineJobName: ${pipelineJobName};\n	supportedPipelines: ${supportedPipelines};\n	jobName: ${jobName};\n	orderNum: ${orderNum};\n	email_list: ${emailList};\n	supportedEnvs: ${supportedEnvs};\n	currentEnv: ${currentEnv};\n	supportedBrowsers: ${supportedBrowsers};\n"
 
-		//TODO: Where we want to add in the browserstack items...
+		//TODO:  Fix potential issues with overrideFields here...
 		def useExternalBrowser = currentSuite.getParameter("useExternalBrowser").toString()
 		def operatingSystems = currentSuite.getParameter("jenkinsPipelineOS").toString()
 		//def overrideFields = currentSuite.getParameter("overrideFields").toString()
@@ -770,7 +788,6 @@ clean test"
 
 						//context.println("initialized ${filePath} suite to pipeline run...")
 						//context.println("pipelines size1: " + listPipelines.size())
-						//TODO: [CB] Need to make tweaks around here...
 						if (useExternalBrowser.contains("null")) {
 							listPipelines.add(pipelineMap)
 						} else {
@@ -798,7 +815,6 @@ clean test"
 		String beginOrder = "0"
 		String curOrder = ""
 		for (Map entry : listPipelines) {
-			//TODO:  Looks like we are doing the stageName's here have to figure out what we need to do to get Browserstack here....
 			def stageName = String.format("Stage: %s Environment: %s Browser: %s", entry.get("jobName"), entry.get("environment"), entry.get("browser"))
 			if (entry.get("operatingSystem") != null) {
 				stageName = stageName + " OS: " + entry.get("operatingSystem")
@@ -926,11 +942,7 @@ clean test"
 			for (Map entry : browserInfo.get("browsers")) {
 				if (entry.get("browser").toString().equalsIgnoreCase(originalMap.get("browser"))
 						&& entry.get("os").toString().toUpperCase().contains(operatingSystem.toUpperCase())) {
-					context.println "Checking Before Adding to Map: " + listPipelines
-					context.println " "
 					listPipelines.add(addOsEntryToList(originalMap, operatingSystem, originalMap.get("browser")))
-					context.println " "
-					context.println "Checking Complete Map: " + listPipelines
 					break
 				}
 			}
@@ -944,7 +956,6 @@ clean test"
 		context.println "Let's Check the Override Fields: " + pipelineTemplate.get("overrideFields")
 
 		pipelineMap.put("custom_capabilities", "browserstack/browserstack_template.properties")
-		//TODO:  Need to setup a mapping template prior to each as it was linking onto each other...
 		pipelineMap.put("overrideFields", buildOverrideParameters(pipelineTemplate.get("overrideFields").toString(), addCustomCapabilityForBrowser(currentOs, browser)))
 		pipelineMap.put("operatingSystem", currentOs)
 
@@ -1006,5 +1017,30 @@ clean test"
 			}
 		}
 		return genericList
+	}
+
+	def useBrowserStack(String uniqueBrowserInstance) {
+		//TODO:  Need to check variables being passed here...
+		def browserStackUrl = "https://www.browserstack.com/browserstack-local/BrowserStackLocal"
+		def accessKey = "dsJcWzZsoepyf6bXdrsK"
+
+		if (context.isUnix()) {
+			def browserStackLocation = "/var/tmp/BrowserStackLocal"
+			if (!context.fileExists(browserStackLocation)) {
+				context.sh "curl -sS " + browserStackUrl + "-linux-x64.zip > " + browserStackLocation + ".zip"
+				context.unzip dir: "/var/tmp", glob: "", zipFile: browserStackLocation + ".zip"
+				context.sh "chmod +x " + browserStackLocation
+			}
+			context.sh browserStackLocation + " --key " + accessKey + " --local-identifier " + uniqueBrowserInstance + " --force-local " + " &"
+		} else {
+			def browserStackLocation = "C:\\tmp\\BrowserStackLocal"
+			if (!context.fileExists(browserStackLocation + ".exe")) {
+				context.powershell(returnStdout: true, script: """[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+Invoke-WebRequest -Uri \'${browserStackUrl}-win32.zip\' -OutFile \'${browserStackLocation}.zip\'""")
+				context.unzip dir: "C:\\tmp", glob: "", zipFile: "${browserStackLocation}.zip"
+			}
+			context.powershell(returnStdout: true, script: "Start-Process -FilePath '${browserStackLocation}.exe' -ArgumentList '--key ${accessKey} --local-identifier ${uniqueBrowserInstance} --force-local'")
+
+		}
 	}
 }
