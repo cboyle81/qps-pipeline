@@ -928,6 +928,8 @@ clean test"
 			for (Map entry : browserInfo.get("browsers")) {
 				if (entry.get("browser").toString().equalsIgnoreCase(originalMap.get("browser"))
 						&& entry.get("os").toString().toUpperCase().contains(operatingSystem.toUpperCase())) {
+					context.println "Checking Before Adding to Map: " + listPipelines
+					context.println " "
 					listPipelines.add(addOsEntryToList(originalMap, operatingSystem, originalMap.get("browser")))
 					context.println " "
 					context.println "Checking Complete Map: " + listPipelines
