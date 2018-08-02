@@ -694,8 +694,7 @@ clean test"
 		if (curPriorityNum != null && !curPriorityNum.isEmpty()) {
 			priorityNum = curPriorityNum //lowest priority for pipeline/cron jobs. So manually started jobs has higher priority among CI queue
 		}
-		
-		
+
 		def supportedBrowsers = currentSuite.getParameter("jenkinsPipelineBrowsers").toString()
 		String logLine = "pipelineJobName: ${pipelineJobName};\n	supportedPipelines: ${supportedPipelines};\n	jobName: ${jobName};\n	orderNum: ${orderNum};\n	email_list: ${emailList};\n	supportedEnvs: ${supportedEnvs};\n	currentEnv: ${currentEnv};\n	supportedBrowsers: ${supportedBrowsers};\n"
 
@@ -703,8 +702,6 @@ clean test"
 		def useExternalBrowser = currentSuite.getParameter("useExternalBrowser").toString()
 		def operatingSystems = currentSuite.getParameter("jenkinsPipelineOS").toString()
 		//def overrideFields = currentSuite.getParameter("overrideFields").toString()
-
-		/**parameterMap.put("overrideFields", getInfo(retrieveRawValues(file, "overrideFields")))**/
 
 		def currentBrowser = Configurator.get("browser")
 		if (currentBrowser == null || currentBrowser.isEmpty()) {
@@ -923,7 +920,8 @@ clean test"
 		parameterMap.remove("operatingSystems");
 
 		for (def operatingSystem : listOfOperatingSystems.split(",")) {
-			def originalMap = parameterMap
+			def originalMap = [:]
+			originalMap.putAll(parameterMap)
 			originalMap.put("overrideFields", "")
 			for (Map entry : browserInfo.get("browsers")) {
 				if (entry.get("browser").toString().equalsIgnoreCase(originalMap.get("browser"))
