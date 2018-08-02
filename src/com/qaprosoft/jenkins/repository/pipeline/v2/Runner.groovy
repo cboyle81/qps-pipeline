@@ -397,8 +397,8 @@ clean test"
 				if (Configurator.get("custom_capabilities").toLowerCase().contains("browserstack")) {
 					def uniqueBrowserInstance = "\"#${BUILD_NUMBER}-" + Configurator.get("suite") + "-" +
 						Configurator.get("browser") + "-" + Configurator.get("env") + "\""
-								.replace("/", "-")
-								.replace("#", "")
+							.replace("/", "-")
+							.replace("#", "")
 
 					useBrowserStack(uniqueBrowserInstance)
 					goals += " -Dcapabilities.project=" + Configurator.get("project")
