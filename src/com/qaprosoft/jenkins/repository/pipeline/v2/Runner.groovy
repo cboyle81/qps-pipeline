@@ -104,7 +104,6 @@ class Runner extends Executor {
 			nodeName = chooseNode()
 		}
 
-		//TODO: BrowserStack Integration needs to be done
 		context.node(nodeName) {
 			context.wrap([$class: 'BuildUser']) {
 				try {
@@ -396,8 +395,8 @@ clean test"
 			if (!isParamEmpty(Configurator.get("custom_capabilities"))) {
 
 				if (Configurator.get("custom_capabilities").toLowerCase().contains("browserstack")) {
-					def uniqueBrowserInstance = "\"#${BUILD_NUMBER}-" + Configurator.get("suite") + "-"
-						+ Configurator.get("browser") + "-" + Configurator.get("env") + "\""
+					def uniqueBrowserInstance = "\"#${BUILD_NUMBER}-" + Configurator.get("suite") + "-" +
+						Configurator.get("browser") + "-" + Configurator.get("env") + "\""
 								.replace("/", "-")
 								.replace("#", "")
 
