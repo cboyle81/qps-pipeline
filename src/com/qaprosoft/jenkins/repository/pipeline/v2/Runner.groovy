@@ -906,7 +906,7 @@ clean test"
 			browser = "chrome"
 		}
 		if ("${JOB_BASE_NAME}".equalsIgnoreCase(parameterMap.get("pipeName"))) {
-			echo "Pipeline job: " + parameterMap.get("pipeName")
+			context.println "Pipeline job: " + parameterMap.get("pipeName")
 			parameterMap.put("browser", browser)
 
 			if (parameterMap.get("useExternalBrowser").contains("null")) {
@@ -929,7 +929,9 @@ clean test"
 				if (entry.get("browser").toString().equalsIgnoreCase(originalMap.get("browser"))
 						&& entry.get("os").toString().toUpperCase().contains(operatingSystem.toUpperCase())) {
 					listPipelines.add(addOsEntryToList(originalMap, operatingSystem, originalMap.get("browser")))
-					break;
+					context.println " "
+					context.println "Checking Complete Map: " + listPipelines
+					break
 				}
 			}
 		}
