@@ -408,7 +408,7 @@ clean test"
 			}
 			
 			//append again overrideFields to make sure they are declared at the end
-			goals = goals + " " + Configurator.get("overrideFields")
+			goals = goals + " " + "\"" + Configurator.get("overrideFields") + "\""
 
 			context.echo "goals: ${goals}"
 
@@ -714,7 +714,6 @@ clean test"
 		def supportedBrowsers = currentSuite.getParameter("jenkinsPipelineBrowsers").toString()
 		String logLine = "pipelineJobName: ${pipelineJobName};\n	supportedPipelines: ${supportedPipelines};\n	jobName: ${jobName};\n	orderNum: ${orderNum};\n	email_list: ${emailList};\n	supportedEnvs: ${supportedEnvs};\n	currentEnv: ${currentEnv};\n	supportedBrowsers: ${supportedBrowsers};\n"
 
-		//TODO:  Fix potential issues with overrideFields here...
 		def useExternalBrowser = currentSuite.getParameter("useExternalBrowser").toString()
 		def operatingSystems = currentSuite.getParameter("jenkinsPipelineOS").toString()
 		def overrideFields = currentSuite.getParameter("overrideFields").toString()
@@ -1023,7 +1022,6 @@ clean test"
 	}
 
 	def useBrowserStack(String uniqueBrowserInstance) {
-		//TODO:  Need to check variables being passed here...
 		def browserStackUrl = "https://www.browserstack.com/browserstack-local/BrowserStackLocal"
 		def accessKey = "dsJcWzZsoepyf6bXdrsK"
 
