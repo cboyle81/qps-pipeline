@@ -363,10 +363,10 @@ clean test"
 			def goals = Configurator.resolveVars(DEFAULT_BASE_MAVEN_GOALS)
 
 			//register all obligatory vars
-			Configurator.getVars().each { k, v -> goals = goals + " -D${k}=\"${v}\""}
+			Configurator.getVars().each { k, v -> goals = goals + " -D${k}='${v}'"}
 			
 			//register all params after vars to be able to override
-            Configurator.getParams().each { k, v -> goals = goals + " -D${k}=\"${v}\""}
+            Configurator.getParams().each { k, v -> goals = goals + " -D${k}='${v}'"}
 
 			//TODO: make sure that jobdsl adds for UI tests boolean args: "capabilities.enableVNC and capabilities.enableVideo"
 			if (Configurator.get("enableVNC") && Configurator.get("enableVNC").toBoolean()) {
@@ -1004,6 +1004,7 @@ clean test"
 
 		goals = buildOverrideParameter(originalOverride)
 
+		//TODO: Need to make each item here a single quote...need to find where it comes from.
 		//goalMap.each { k, v -> goals = goals + " -D${k}=\"${v}\""}
 		goalMap.each { k, v -> goals = goals + " -D${k}=${v}"}
 
