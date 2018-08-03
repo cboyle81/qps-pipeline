@@ -408,7 +408,7 @@ clean test"
 			}
 			
 			//append again overrideFields to make sure they are declared at the end
-			goals = goals + " " + "'" + Configurator.get("overrideFields") + "'"
+			goals = goals + " " + Configurator.get("overrideFields")
 
 			context.echo "goals: ${goals}"
 
@@ -1004,7 +1004,8 @@ clean test"
 
 		goals = buildOverrideParameter(originalOverride)
 
-		goalMap.each { k, v -> goals = goals + " -D${k}=\"${v}\""}
+		//goalMap.each { k, v -> goals = goals + " -D${k}=\"${v}\""}
+		goalMap.each { k, v -> goals = goals + " -D${k}=${v}"}
 
 		return goals
 	}
