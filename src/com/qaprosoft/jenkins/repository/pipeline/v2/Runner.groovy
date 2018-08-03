@@ -717,7 +717,7 @@ clean test"
 		//TODO:  Fix potential issues with overrideFields here...
 		def useExternalBrowser = currentSuite.getParameter("useExternalBrowser").toString()
 		def operatingSystems = currentSuite.getParameter("jenkinsPipelineOS").toString()
-		//def overrideFields = currentSuite.getParameter("overrideFields").toString()
+		def overrideFields = currentSuite.getParameter("overrideFields").toString()
 
 		def currentBrowser = Configurator.get("browser")
 		if (currentBrowser == null || currentBrowser.isEmpty()) {
@@ -783,6 +783,7 @@ clean test"
 						pipelineMap.put("priority", priorityNum)
 						pipelineMap.put("emailList", emailList.replace(", ", ","))
 						pipelineMap.put("executionMode", executionMode.replace(", ", ","))
+						pipelineMap.put("overrideFields", overrideFields)
 
 						//context.println("initialized ${filePath} suite to pipeline run...")
 						//context.println("pipelines size1: " + listPipelines.size())
@@ -934,12 +935,13 @@ clean test"
 	def generateOperatingSystemPipeline(Map parameterMap, List listPipelines) {
 		def browserInfo = context.readYaml file: "mlb-qa/src/main/resources/pipeline/browsers.yaml"
 		def listOfOperatingSystems = parameterMap.get("operatingSystems")
+		def storeOverrideField = parameterMap.get("overrideFields")
 		parameterMap.remove("operatingSystems");
 
 		for (def operatingSystem : listOfOperatingSystems.split(",")) {
 			def originalMap = [:]
 			originalMap.putAll(parameterMap)
-			originalMap.put("overrideFields", "")
+			originalMap.put("overrideFields", storeOverrideField)
 			for (Map entry : browserInfo.get("browsers")) {
 				if (entry.get("browser").toString().equalsIgnoreCase(originalMap.get("browser"))
 						&& entry.get("os").toString().toUpperCase().contains(operatingSystem.toUpperCase())) {
