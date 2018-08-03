@@ -94,6 +94,11 @@ class Job {
 					jobType = currentSuite.getParameter("jenkinsJobType")
 				}
 				context.println("jobType: " + jobType)
+
+				if (!currentSuite.getParameter("useExternalBrowser").toString().contains("null")) {
+					concurrentBuild(false)
+				}
+
 				switch(jobType.toLowerCase()) {
 					case ~/^(?!.*web).*api.*$/:
 					// API tests specific
