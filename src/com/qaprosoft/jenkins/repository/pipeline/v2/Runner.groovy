@@ -391,7 +391,6 @@ clean test"
 				goals += " install"
 			}
 
-			//TODO:  Adding in Browserstack support...
 			if (!isParamEmpty(Configurator.get("custom_capabilities"))) {
 
 				if (Configurator.get("custom_capabilities").toLowerCase().contains("browserstack")) {
@@ -877,16 +876,19 @@ clean test"
 			def ADMIN_EMAILS = Configurator.get("email_list")
 
 			//context.println("propagate: " + propagateJob)
+			//TODO: Need to add in custom_capabilities and override fields here...
 			try {
 				if (!entry.get("browser").isEmpty()) {
 					context.build job: folderName + "/" + entry.get("jobName"),
 						propagate: propagateJob,
-						parameters: [context.string(name: 'branch', value: entry.get("branch")), context.string(name: 'env', value: entry.get("environment")), context.string(name: 'browser', value: entry.get("browser")), context.string(name: 'ci_parent_url', value: entry.get("ci_parent_url")), context.string(name: 'ci_parent_build', value: entry.get("ci_parent_build")), context.string(name: 'email_list', value: entry.get("emailList")), context.string(name: 'retry_count', value: entry.get("retry_count")), context.string(name: 'BuildPriority', value: entry.get("priority")),],
+						parameters: [context.string(name: 'branch', value: entry.get("branch")), context.string(name: 'env', value: entry.get("environment")), context.string(name: 'browser', value: entry.get("browser")), context.string(name: 'ci_parent_url', value: entry.get("ci_parent_url")), context.string(name: 'ci_parent_build', value: entry.get("ci_parent_build")), context.string(name: 'email_list', value: entry.get("emailList")), context.string(name: 'retry_count', value: entry.get("retry_count")), context.string(name: 'BuildPriority', value: entry.get("priority")),
+									 context.string(name: 'custom_capabilities', value: entry.get("custom_capabilities")), context.string(name: 'overrideFields', value: entry.get("overrideFields")),],
 						wait: waitJob
 				} else {
 					context.build job: folderName + "/" + entry.get("jobName"),
 						propagate: propagateJob,
-						parameters: [context.string(name: 'branch', value: entry.get("branch")), context.string(name: 'env', value: entry.get("environment")), context.string(name: 'ci_parent_url', value: entry.get("ci_parent_url")), context.string(name: 'ci_parent_build', value: entry.get("ci_parent_build")), context.string(name: 'email_list', value: entry.get("emailList")), context.string(name: 'retry_count', value: entry.get("retry_count")), context.string(name: 'BuildPriority', value: entry.get("priority")),],
+						parameters: [context.string(name: 'branch', value: entry.get("branch")), context.string(name: 'env', value: entry.get("environment")), context.string(name: 'ci_parent_url', value: entry.get("ci_parent_url")), context.string(name: 'ci_parent_build', value: entry.get("ci_parent_build")), context.string(name: 'email_list', value: entry.get("emailList")), context.string(name: 'retry_count', value: entry.get("retry_count")), context.string(name: 'BuildPriority', value: entry.get("priority")),
+									 context.string(name: 'custom_capabilities', value: entry.get("custom_capabilities")), context.string(name: 'overrideFields', value: entry.get("overrideFields")),],
 						wait: waitJob
 				}
 			} catch (Exception ex) {
