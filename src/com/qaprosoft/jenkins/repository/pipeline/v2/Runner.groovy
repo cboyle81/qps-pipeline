@@ -369,7 +369,8 @@ clean test"
             Configurator.getParams().each { k, v -> goals = goals + " -D${k}=\"${v}\""}
 
 			//TODO: make sure that jobdsl adds for UI tests boolean args: "capabilities.enableVNC and capabilities.enableVideo"
-			if (Configurator.get("enableVNC") && Configurator.get("enableVNC").toBoolean()) {
+
+			if (Configurator.get("node").equalsIgnoreCase("web") || Configurator.get("node").equalsIgnoreCase("android")) {
 				goals += " -Dcapabilities.enableVNC=true "
 			}
 
@@ -410,7 +411,7 @@ clean test"
 			//append again overrideFields to make sure they are declared at the end
 			goals = goals + " " + Configurator.get("overrideFields")
 
-			context.echo "goals: ${goals}"
+			//context.echo "goals: ${goals}"
 
 			//TODO: adjust ZAFIRA_REPORT_FOLDER correctly
 			if (context.isUnix()) {
@@ -472,7 +473,7 @@ clean test"
 	protected String getUUID() {
 		def ci_run_id = Configurator.get("ci_run_id")
 		context.echo "uuid from jobParams: " + ci_run_id
-		if (ci_run_id.isEmpty()) {
+		if (ci_run_id == null || ci_run_id.isEmpty()) {
 				ci_run_id = randomUUID() as String
 		}
 		context.echo "final uuid: " + ci_run_id
@@ -487,6 +488,7 @@ clean test"
 		String JOB_URL = Configurator.get(Configurator.Parameter.JOB_URL)
 		String BUILD_NUMBER = Configurator.get(Configurator.Parameter.BUILD_NUMBER)
 		String JOB_NAME = Configurator.get(Configurator.Parameter.JOB_NAME)
+		String ADMIN_EMAILS = Configurator.get(Configurator.Parameter.ADMIN_EMAILS)
 
 		String email_list = Configurator.get("email_list")
 
@@ -711,7 +713,7 @@ clean test"
 			priorityNum = curPriorityNum //lowest priority for pipeline/cron jobs. So manually started jobs has higher priority among CI queue
 		}
 
-		def supportedBrowsers = currentSuite.getParameter("jenkinsPipelineBrowsers").toString()
+        String supportedBrowsers = currentSuite.getParameter("jenkinsPipelineBrowsers").toString()
 		String logLine = "pipelineJobName: ${pipelineJobName};\n	supportedPipelines: ${supportedPipelines};\n	jobName: ${jobName};\n	orderNum: ${orderNum};\n	email_list: ${emailList};\n	supportedEnvs: ${supportedEnvs};\n	currentEnv: ${currentEnv};\n	supportedBrowsers: ${supportedBrowsers};\n"
 
 		def useExternalBrowser = currentSuite.getParameter("useExternalBrowser").toString()
@@ -719,9 +721,15 @@ clean test"
 		def overrideFields = currentSuite.getParameter("overrideFields").toString()
 
 		def currentBrowser = Configurator.get("browser")
+
+		context.println("CURRENT BROWSER" + currentBrowser)
 		if (currentBrowser == null || currentBrowser.isEmpty()) {
 			currentBrowser = "NULL"
 		}
+
+        def browser = currentBrowser
+        def browserVersion = '*'
+
 		logLine += "	currentBrowser: ${currentBrowser};\n"
 		context.println(logLine)
 		
@@ -745,7 +753,16 @@ clean test"
 						// supportedBrowsers - list of supported browsers for suite which are declared in testng suite xml file
 						// supportedBrowser - splitted single browser name from supportedBrowsers
 
-						// currentBrowser - explicilty selected browser on cron/pipeline level to execute tests
+                        if (supportedBrowser.contains(" ")) {
+                            def browserNameArray = supportedBrowser.split("\\s")
+                            browser = browserNameArray[0]
+                            browserVersion = browserNameArray[1]
+                        } else {
+                            browser = supportedBrowser
+                        }
+
+
+                        // currentBrowser - explicilty selected browser on cron/pipeline level to execute tests
 
 						//context.println("supportedBrowser: ${supportedBrowser}; currentBrowser: ${currentBrowser}; ")
 						if (!currentBrowser.equals(supportedBrowser) && !currentBrowser.toString().equals("NULL")) {
@@ -880,14 +897,34 @@ clean test"
 				if (!entry.get("browser").isEmpty()) {
 					context.build job: folderName + "/" + entry.get("jobName"),
 						propagate: propagateJob,
-						parameters: [context.string(name: 'branch', value: entry.get("branch")), context.string(name: 'env', value: entry.get("environment")), context.string(name: 'browser', value: entry.get("browser")), context.string(name: 'ci_parent_url', value: entry.get("ci_parent_url")), context.string(name: 'ci_parent_build', value: entry.get("ci_parent_build")), context.string(name: 'email_list', value: entry.get("emailList")), context.string(name: 'retry_count', value: entry.get("retry_count")), context.string(name: 'BuildPriority', value: entry.get("priority")),
-									 context.string(name: 'custom_capabilities', value: entry.get("custom_capabilities")), context.string(name: 'overrideFields', value: entry.get("overrideFields")),],
+						parameters: \
+                            [context.string(name: 'branch', value: entry.get("branch")), \
+                             context.string(name: 'env', value: entry.get("environment")), \
+                             context.string(name: 'browser', value: entry.get("browser")), \
+                             context.string(name: 'browser_version', value: entry.get("browser_version")), \
+                             context.string(name: 'ci_parent_url', value: entry.get("ci_parent_url")), \
+                             context.string(name: 'ci_parent_build', value: entry.get("ci_parent_build")), \
+                             context.string(name: 'email_list', value: entry.get("emailList")), \
+                             context.string(name: 'retry_count', value: entry.get("retry_count")), \
+                             context.string(name: 'BuildPriority', value: entry.get("priority")),
+							 context.string(name: 'custom_capabilities', value: entry.get("custom_capabilities")),
+							 context.string(name: 'overrideFields', value: entry.get("overrideFields")),],
+
 						wait: waitJob
 				} else {
 					context.build job: folderName + "/" + entry.get("jobName"),
 						propagate: propagateJob,
-						parameters: [context.string(name: 'branch', value: entry.get("branch")), context.string(name: 'env', value: entry.get("environment")), context.string(name: 'ci_parent_url', value: entry.get("ci_parent_url")), context.string(name: 'ci_parent_build', value: entry.get("ci_parent_build")), context.string(name: 'email_list', value: entry.get("emailList")), context.string(name: 'retry_count', value: entry.get("retry_count")), context.string(name: 'BuildPriority', value: entry.get("priority")),
-									 context.string(name: 'custom_capabilities', value: entry.get("custom_capabilities")), context.string(name: 'overrideFields', value: entry.get("overrideFields")),],
+						parameters: \
+                            [context.string(name: 'branch', value: entry.get("branch")),
+                             context.string(name: 'env', value: entry.get("environment")),
+                             context.string(name: 'ci_parent_url', value: entry.get("ci_parent_url")),
+                             context.string(name: 'ci_parent_build', value: entry.get("ci_parent_build")),
+                             context.string(name: 'email_list', value: entry.get("emailList")),
+                             context.string(name: 'retry_count', value: entry.get("retry_count")),
+                             context.string(name: 'BuildPriority', value: entry.get("priority")),
+							 context.string(name: 'custom_capabilities', value: entry.get("custom_capabilities")),
+							 context.string(name: 'overrideFields', value: entry.get("overrideFields")),],
+
 						wait: waitJob
 				}
 			} catch (Exception ex) {

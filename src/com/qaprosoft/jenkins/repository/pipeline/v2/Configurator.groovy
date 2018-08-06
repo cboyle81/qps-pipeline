@@ -31,7 +31,7 @@ public class Configurator {
     public enum Parameter {
 
         //vars
-        CARINA_CORE_VERSION("CARINA_CORE_VERSION", "5.2.5.113"),
+        CARINA_CORE_VERSION("CARINA_CORE_VERSION", "5.2.5.115"),
         CORE_LOG_LEVEL("CORE_LOG_LEVEL", "INFO"),
 		//to enable default jacoco code coverage instrumenting we have to find a way to init valid AWS aws-jacoco-token on Jenkins preliminary
 		//the biggest problem is that AWS key can't be located in public repositories
@@ -54,7 +54,9 @@ public class Configurator {
         SELENIUM_HOST("SELENIUM_HOST", "\${QPS_HOST}"),
         SELENIUM_PORT("SELENIUM_PORT", "4444"),
         SELENIUM_URL("SELENIUM_URL", "\${SELENIUM_PROTOCOL}://demo:demo@\${SELENIUM_HOST}:\${SELENIUM_PORT}/wd/hub"),
-		
+
+        QPS_HUB("QPS_HUB", "\${SELENIUM_PROTOCOL}://${SELENIUM_HOST}:\${SELENIUM_PORT}"),
+
         ZAFIRA_ACCESS_TOKEN("ZAFIRA_ACCESS_TOKEN", mustOverride),
         ZAFIRA_SERVICE_URL("ZAFIRA_SERVICE_URL", "http://zafira:8080/zafira-ws"),
 		
@@ -161,7 +163,7 @@ public class Configurator {
     }
 
     public static void set(String paramName, String value) {
-        return vars.put(paramName, value)
+        vars.put(paramName, value)
     }
 
 	// simple way to reload as a bundle all project custom arguments from private pipeline	
@@ -181,7 +183,7 @@ public class Configurator {
 	}
 
     public static void remove(String key) {
-        return vars.remove(key)
+        vars.remove(key)
     }
 
 }

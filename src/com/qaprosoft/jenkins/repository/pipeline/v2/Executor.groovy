@@ -4,11 +4,8 @@ package com.qaprosoft.jenkins.repository.pipeline.v2
 import org.testng.xml.Parser;
 import org.testng.xml.XmlSuite;
 import com.cloudbees.groovy.cps.NonCPS
-import com.qaprosoft.jenkins.repository.pipeline.v2.Configurator
-//import static java.util.UUID.randomUUID
 
-import com.qaprosoft.scm.ISCM;
-import com.qaprosoft.scm.github.GitHub;
+import com.qaprosoft.scm.ISCM
 
 public abstract class Executor {
 	//pipeline context to provide access to existing pipeline methods like echo, sh etc...
@@ -48,18 +45,6 @@ public abstract class Executor {
 			return ""
 		}
 	}
-
-    @NonCPS
-	/* Checks whether the item with provided @name exists on Jenkins
-	**/
-    protected boolean isItemAvailable(String name) {
-        boolean available = false
-        def job = Jenkins.instance.getItemByFullName(name)
-        if (job) {
-            available = true
-        }
-        return available
-    }
 
 	protected Object parseJSON(String path) {
 		def inputFile = new File(path)
@@ -112,8 +97,4 @@ public abstract class Executor {
 		return currentSuite
 	}
 
-	String parseSuiteToText(String path) {
-		def content = new File(path).getText()
-		return content
-	}
 }
