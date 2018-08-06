@@ -133,7 +133,7 @@ class Runner extends Executor {
 				} finally {
                     this.exportZafiraReport()
                     this.reportingResults()
-                    //TODO: send notification via email, slack, hipchat and whatever... based on subscrpition rules
+                    //TODO: send notification via email, slack, hipchat and whatever... based on subscription rules
                     this.sendTestRunResultsEmail(emailList, failureEmailList)
                     this.clean()
                 }
@@ -412,7 +412,7 @@ clean test"
 
 			context.echo "goals: ${goals}"
 
-			//TODO: adjust ZAFIRA_REPORT_FOLDER correclty
+			//TODO: adjust ZAFIRA_REPORT_FOLDER correctly
 			if (context.isUnix()) {
 				def suiteNameForUnix = Configurator.get("suite").replace("\\", "/")
 				context.echo "Suite for Unix: ${suiteNameForUnix}"
@@ -876,7 +876,6 @@ clean test"
 			def ADMIN_EMAILS = Configurator.get("email_list")
 
 			//context.println("propagate: " + propagateJob)
-			//TODO: Need to add in custom_capabilities and override fields here...
 			try {
 				if (!entry.get("browser").isEmpty()) {
 					context.build job: folderName + "/" + entry.get("jobName"),
@@ -1004,8 +1003,6 @@ clean test"
 
 		goals = buildOverrideParameter(originalOverride)
 
-		//TODO: Need to make each item here a single quote...need to find where it comes from.
-		//goalMap.each { k, v -> goals = goals + " -D${k}=\"${v}\""}
 		goalMap.each { k, v -> goals = goals + " -D${k}='${v}'"}
 
 		return goals
@@ -1025,7 +1022,7 @@ clean test"
 
 	def useBrowserStack(String uniqueBrowserInstance) {
 		def browserStackUrl = "https://www.browserstack.com/browserstack-local/BrowserStackLocal"
-		def accessKey = "dsJcWzZsoepyf6bXdrsK"
+		def accessKey = Configurator.get("BROWSERSTACK_ACCESS_KEY")
 
 		if (context.isUnix()) {
 			def browserStackLocation = "/var/tmp/BrowserStackLocal"
