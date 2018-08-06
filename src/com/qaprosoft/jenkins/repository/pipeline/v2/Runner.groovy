@@ -1006,7 +1006,7 @@ clean test"
 
 		//TODO: Need to make each item here a single quote...need to find where it comes from.
 		//goalMap.each { k, v -> goals = goals + " -D${k}=\"${v}\""}
-		goalMap.each { k, v -> goals = goals + " -D${k}=${v}"}
+		goalMap.each { k, v -> goals = goals + " -D${k}='${v}'"}
 
 		return goals
 	}
